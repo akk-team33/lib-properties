@@ -1,5 +1,6 @@
 package de.team33.libs.properties.v1;
 
+import java.lang.reflect.Field;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -30,23 +31,11 @@ public interface Property<C> {
             }
 
             @Override
-            public final Property<C> set(final C container, final Object value) {
+            public final C set(final C container, final Object value) {
                 //noinspection unchecked
                 setter.accept(container, (V) value);
-                return this;
+                return container;
             }
-        };
-    }
-
-    static <C, V> BiConsumer<C, V> noSetter(final String name) {
-        return (c, v) -> {
-            throw new UnsupportedOperationException("setter is not supported for this property (\"" + name + "\")");
-        };
-    }
-
-    static <C, V> Function<C, V> noGetter(final String name) {
-        return c -> {
-            throw new UnsupportedOperationException("getter is not supported for this property (\"" + name + "\")");
         };
     }
 
@@ -57,7 +46,7 @@ public interface Property<C> {
      * @param getter a method to get the value of this property based on an instance of the underlying type.
      */
     static <C, V> Property<C> simple(final String name, final Function<C, V> getter) {
-        return simple(name, getter, noSetter(name));
+        return simple(name, getter, Unsupported.setter(name));
     }
 
     /**
@@ -67,7 +56,35 @@ public interface Property<C> {
      * @param setter a method to set the value of this property to an instance of the underlying type.
      */
     static <C, V> Property<C> simple(final String name, final BiConsumer<C, V> setter) {
-        return simple(name, noGetter(name), setter);
+        return simple(name, Unsupported.getter(name), setter);
+    }
+
+    static Property of(final Field field) {
+        return new Property() {
+            @Override
+            public String name() {
+                return field.getName();
+            }
+
+            @Override
+            public Object get(final Object container) throws UnsupportedOperationException, NullPointerException {
+                try {
+                    return field.get(container);
+                } catch (IllegalAccessException e) {
+                    throw new IllegalArgumentException("not yet implemented", e);
+                }
+            }
+
+            @Override
+            public Object set(final Object container, final Object value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
+                try {
+                    field.set(container, value);
+                } catch (IllegalAccessException e) {
+                    throw new UnsupportedOperationException("not yet implemented", e);
+                }
+                return container;
+            }
+        };
     }
 
     /**
@@ -95,7 +112,7 @@ public interface Property<C> {
      * @throws IllegalStateException         If the value can not be assigned to this property for any other reason
      *                                       that results from the given container.
      */
-    Property<C> set(C container, Object value) throws UnsupportedOperationException, NullPointerException,
+    C set(C container, Object value) throws UnsupportedOperationException, NullPointerException,
                                                       ClassCastException, IllegalArgumentException,
                                                       IllegalStateException;
 }
