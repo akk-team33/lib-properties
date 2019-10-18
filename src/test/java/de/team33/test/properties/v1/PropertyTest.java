@@ -1,6 +1,8 @@
 package de.team33.test.properties.v1;
 
 import de.team33.libs.properties.v1.Property;
+import de.team33.test.properties.shared.Immutable;
+import de.team33.test.properties.shared.Mutable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,61 +20,47 @@ public class PropertyTest {
 
     @Test
     public void name() {
-        final Property<Sample> property = Property.simple("value", Sample::getValue, Sample::setValue);
+        final Property<Mutable> property = Property.simple("value", Mutable::getValue, Mutable::setValue);
         Assert.assertEquals("value", property.name());
     }
 
     @Test
     public void direct() {
         values().forEach(value -> {
-            final Sample sample = new Sample().setValue(value);
+            final Mutable sample = new Mutable().setValue(value);
             Assert.assertEquals(value, sample.getValue());
         });
     }
 
     @Test
     public void get() {
-        final Property<Sample> property = Property.simple("value", Sample::getValue);
+        final Property<Mutable> property = Property.simple("value", Mutable::getValue);
         values().forEach(value -> {
-            final Sample sample = new Sample().setValue(value);
+            final Mutable sample = new Mutable().setValue(value);
             Assert.assertEquals(sample.getValue(), property.get(sample));
         });
     }
 
     @Test
     public void set() {
-        final Property<Sample> property = Property.simple("value", Sample::setValue);
+        final Property<Mutable> property = Property.simple("value", Mutable::setValue);
         values().forEach(value -> {
-            final Sample sample = property.set(new Sample(), value);
+            final Mutable sample = property.set(new Mutable(), value);
             Assert.assertEquals(value, sample.getValue());
         });
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void unsupportedGet() {
-        final Property<Sample> property = Property.simple("value", Sample::setValue);
-        final Sample sample = new Sample().setValue(random.nextLong());
+        final Property<Mutable> property = Property.simple("value", Mutable::setValue);
+        final Mutable sample = new Mutable().setValue(random.nextLong());
         Assert.fail("Expected to fail but was <" + property.get(sample) + ">");
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void unsupportedSet() {
-        final Property<Sample> property = Property.simple("value", Sample::getValue);
-        final Sample sample = property.set(new Sample(), random.nextLong());
+        final Property<Immutable> property = Property.simple("value", Immutable::getValue);
+        final Immutable sample = property.set(new Immutable(null), random.nextLong());
         Assert.fail("Expected to fail but was <" + sample.getValue() + ">");
-    }
-
-    public static class Sample {
-
-        private Long value;
-
-        public Long getValue() {
-            return value;
-        }
-
-        public Sample setValue(final Long value) {
-            this.value = value;
-            return this;
-        }
     }
 }

@@ -1,18 +1,21 @@
 package de.team33.libs.properties.v1;
 
 import java.lang.reflect.Field;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class FieldProperty<C> implements Property<C> {
 
     private static final String GET_FAILED = "cannot access <%s> within container of <%s>";
+    private static final String SET_FAILED = "cannot set <%s> within container of <%s> to value of <%s>";
 
     private final String name;
     private final Field field;
 
+    public FieldProperty(final Field field) {
+        this(field.getName(), field);
+    }
+
     public FieldProperty(final String name, final Field field) {
+        field.setAccessible(true);
         this.name = name;
         this.field = field;
     }
@@ -23,7 +26,7 @@ public class FieldProperty<C> implements Property<C> {
     }
 
     @Override
-    public final Object get(final C container) throws UnsupportedOperationException, NullPointerException {
+    public final Object get(final C container) throws NullPointerException {
         try {
             return field.get(container);
         } catch (final IllegalAccessException e) {
@@ -36,25 +39,8 @@ public class FieldProperty<C> implements Property<C> {
         try {
             field.set(container, value);
         } catch (final IllegalAccessException e) {
-            throw new UnsupportedOperationException("not yet implemented", e);
+            throw new IllegalArgumentException(String.format(SET_FAILED, field, container.getClass(), value.getClass()), e);
         }
-        throw new UnsupportedOperationException("not yet implemented");
-    }
-
-    public static class Source {
-
-        private final Function<Class<?>, Stream<Field>> fields;
-        private final BiFunction<Class<?>, Field, String> naming;
-
-        public Source(final Function<Class<?>, Stream<Field>> fields,
-                      final BiFunction<Class<?>, Field, String> naming) {
-            this.fields = fields;
-            this.naming = naming;
-        }
-
-        public final <C> Stream<FieldProperty<C>> stream(final Class<C> containerClass) {
-            return fields.apply(containerClass)
-                         .map(field -> new FieldProperty<>(naming.apply(containerClass, field), field));
-        }
+        return container;
     }
 }
