@@ -5,6 +5,7 @@ import de.team33.test.properties.shared.Container;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -17,39 +18,72 @@ public abstract class PropertyTestBase {
                      .distinct().limit(100);
     }
 
-    protected abstract Property getProperty();
-
-    protected abstract Container newContainer(Long value);
+    protected abstract Context getContext();
 
     @Test
     public final void name() {
-        Assert.assertEquals("value", getProperty().name());
+        final Context context = getContext();
+        Assert.assertEquals(context.expectedPropertyName, context.property.name());
     }
 
     @Test
     public final void direct() {
+        final Context context = getContext();
         values().forEach(value -> {
-            final Container sample = newContainer(value);
+            final Container sample = context.newContainer(ContainerType.Familiar, value);
             Assert.assertEquals(value, sample.getValue());
         });
     }
 
     @Test
     public void get() {
-        final Property property = getProperty();
+        final Context context = getContext();
         values().forEach(value -> {
-            final Container sample = newContainer(value);
-            Assert.assertEquals(sample.getValue(), property.get(sample));
+            final Container sample = context.newContainer(ContainerType.Familiar, value);
+            Assert.assertEquals(sample.getValue(), context.property.get(sample));
         });
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void getNull() {
+        Optional.ofNullable(getContext())
+                .map(ctx -> ctx.property)
+                .orElseThrow(() -> new IllegalStateException("getContext().property must be present"))
+                .get(null);
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void getForeign() {
+        final Context context = getContext();
+        final Container sample = context.newContainer(ContainerType.Foreign, random.nextLong());
+        Assert.assertEquals(sample.getValue(), context.property.get(sample));
     }
 
     @Test
     public void set() {
-        final Property property = getProperty();
+        final Context context = getContext();
         values().forEach(value -> {
-            final Container sample = newContainer(null);
-            property.set(sample, value);
+            final Container sample = context.newContainer(ContainerType.Familiar, null);
+            context.property.set(sample, value);
             Assert.assertEquals(value, sample.getValue());
         });
+    }
+
+    protected enum ContainerType {
+        Familiar,
+        Foreign
+    }
+
+    protected static abstract class Context {
+
+        private final String expectedPropertyName;
+        private final Property property;
+
+        protected Context(final String expectedPropertyName, final Property property) {
+            this.expectedPropertyName = expectedPropertyName;
+            this.property = property;
+        }
+
+        protected abstract Container newContainer(final ContainerType type, final Long value);
     }
 }
