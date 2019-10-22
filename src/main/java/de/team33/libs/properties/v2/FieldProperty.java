@@ -2,7 +2,7 @@ package de.team33.libs.properties.v2;
 
 import java.lang.reflect.Field;
 
-public class FieldProperty implements Property {
+public class FieldProperty<C, V> implements Property<C, V> {
 
     private final String name;
     private final Field field;
@@ -23,19 +23,20 @@ public class FieldProperty implements Property {
     }
 
     @Override
-    public Object getValue(final Object container) throws UnsupportedOperationException, NullPointerException {
+    public V getValue(final C context) throws UnsupportedOperationException, NullPointerException {
         try {
-            return field.get(container);
+            //noinspection unchecked
+            return (V) field.get(context);
         } catch (final IllegalAccessException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
     @Override
-    public void setValue(final Object container, final Object value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
+    public void setValue(final C context, final V value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
         try {
-            field.set(container, value);
-        } catch (IllegalAccessException e) {
+            field.set(context, value);
+        } catch (final IllegalAccessException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }

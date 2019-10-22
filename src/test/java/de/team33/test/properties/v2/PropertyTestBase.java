@@ -2,12 +2,15 @@ package de.team33.test.properties.v2;
 
 import de.team33.libs.properties.v2.Property;
 import de.team33.test.properties.shared.Container;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static org.junit.Assert.assertEquals;
+
+@SuppressWarnings("unchecked")
 public abstract class PropertyTestBase {
 
     private final Random random = new Random();
@@ -19,33 +22,30 @@ public abstract class PropertyTestBase {
         this.property = property;
     }
 
-    private Stream<Long> values() {
-        return Stream.concat(Stream.of(0L, 1L, 5L, -7L, null), Stream.generate(random::nextLong))
-                     .distinct().limit(100);
+    private void forSeveralValues(final Consumer<Long> consumer) {
+        Stream.concat(Stream.of(0L, 1L, 5L, -7L, null), Stream.generate(random::nextLong))
+              .distinct().limit(100)
+              .forEach(consumer);
     }
 
     protected abstract Container newContainer(final ContainerType type, final Long value);
 
     @Test
     public final void consistence() {
-        values().forEach(value -> {
-            final Container sample1 = newContainer(ContainerType.Familiar, value);
-            Assert.assertEquals(value, sample1.getValue());
-            final Container sample2 = newContainer(ContainerType.Foreign, value);
-            Assert.assertEquals(value, sample2.getValue());
-        });
+        forSeveralValues(value -> Stream.of(ContainerType.values())
+                                        .forEach(type -> assertEquals(value, newContainer(type, value).getValue())));
     }
 
     @Test
     public final void getKey() {
-        Assert.assertEquals(expectedPropertyName, property.getKey());
+        assertEquals(expectedPropertyName, property.getKey());
     }
 
     @Test
     public final void getValue() {
-        values().forEach(value -> {
+        forSeveralValues(value -> {
             final Container sample = newContainer(ContainerType.Familiar, value);
-            Assert.assertEquals(sample.getValue(), property.getValue(sample));
+            assertEquals(sample.getValue(), property.getValue(sample));
         });
     }
 
@@ -57,15 +57,15 @@ public abstract class PropertyTestBase {
     @Test(expected = RuntimeException.class) // TODO: IllegalArgumentException.class
     public void getValueByForeign() {
         final Container sample = newContainer(ContainerType.Foreign, random.nextLong());
-        Assert.assertEquals(sample.getValue(), property.getValue(sample));
+        assertEquals(sample.getValue(), property.getValue(sample));
     }
 
     @Test
     public void setValue() {
-        values().forEach(value -> {
+        forSeveralValues(value -> {
             final Container sample = newContainer(ContainerType.Familiar, null);
             property.setValue(sample, value);
-            Assert.assertEquals(value, sample.getValue());
+            assertEquals(value, sample.getValue());
         });
     }
 

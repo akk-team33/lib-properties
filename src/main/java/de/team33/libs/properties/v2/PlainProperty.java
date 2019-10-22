@@ -3,7 +3,7 @@ package de.team33.libs.properties.v2;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class PlainProperty implements Property {
+public class PlainProperty<C, V> implements Property<C, V> {
 
     private static final BiConsumer UNSUPPORTED_SETTER = (c, v) -> {
         throw new UnsupportedOperationException("setter is not supported for this property");
@@ -13,21 +13,21 @@ public class PlainProperty implements Property {
     };
 
     private final String name;
-    private final Function getter;
-    private final BiConsumer setter;
+    private final Function<C, V> getter;
+    private final BiConsumer<C, V> setter;
 
-    public <C, V> PlainProperty(final String name, final Function<C, V> getter, final BiConsumer<C, V> setter) {
+    public PlainProperty(final String name, final Function<C, V> getter, final BiConsumer<C, V> setter) {
         this.name = name;
         this.getter = getter;
         this.setter = setter;
     }
 
-    public <C, V> PlainProperty(final String name, final Function<C, V> getter) {
+    public PlainProperty(final String name, final Function<C, V> getter) {
         //noinspection unchecked
         this(name, getter, UNSUPPORTED_SETTER);
     }
 
-    public <C, V> PlainProperty(final String name, final BiConsumer<C, V> setter) {
+    public PlainProperty(final String name, final BiConsumer<C, V> setter) {
         //noinspection unchecked
         this(name, UNSUPPORTED_GETTER, setter);
     }
@@ -38,14 +38,12 @@ public class PlainProperty implements Property {
     }
 
     @Override
-    public final Object getValue(final Object container) throws UnsupportedOperationException, NullPointerException {
-        //noinspection unchecked
-        return getter.apply(container);
+    public final V getValue(final C context) throws UnsupportedOperationException, NullPointerException {
+        return getter.apply(context);
     }
 
     @Override
-    public final void setValue(final Object container, final Object value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
-        //noinspection unchecked
-        setter.accept(container, value);
+    public final void setValue(final C context, final V value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
+        setter.accept(context, value);
     }
 }

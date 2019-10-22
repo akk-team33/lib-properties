@@ -8,7 +8,7 @@ import de.team33.test.properties.shared.Mutable;
 public class PlainPropertyTest extends PropertyTestBase {
 
     public PlainPropertyTest() {
-        super("value", new PlainProperty("value", Mutable::getValue, Mutable::setValue));
+        super("value", new PlainProperty<>("value", Mutable::getValue, Mutable::setValue));
     }
 
     @Override
