@@ -1,14 +1,14 @@
 package de.team33.libs.properties.v2;
 
 /**
- * Abstracts a property
+ * Abstracts a property as a key-value pair.
  */
 public interface Property {
 
     /**
-     * Returns the name of this property.
+     * Returns the key of this property.
      */
-    String name();
+    String getKey();
 
     /**
      * Gets the value of this property from a specific container.
@@ -16,7 +16,7 @@ public interface Property {
      * @throws UnsupportedOperationException If the value of this property can not be retrieved.
      * @throws NullPointerException          If the given container is {@code null}.
      */
-    Object get(Object container) throws UnsupportedOperationException, NullPointerException;
+    Object getValue(Object container) throws UnsupportedOperationException, NullPointerException;
 
     /**
      * Sets this property of a given container to a given value.
@@ -30,7 +30,7 @@ public interface Property {
      * @throws IllegalStateException         If the value can not be assigned to this property for any other reason
      *                                       that results from the given container.
      */
-    void set(Object container, Object value) throws UnsupportedOperationException, NullPointerException,
-                                                    ClassCastException, IllegalArgumentException,
-                                                    IllegalStateException;
+    void setValue(Object container, Object value) throws UnsupportedOperationException, NullPointerException,
+                                                         ClassCastException, IllegalArgumentException,
+                                                         IllegalStateException;
 }

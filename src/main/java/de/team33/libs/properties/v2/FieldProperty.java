@@ -18,12 +18,12 @@ public class FieldProperty implements Property {
     }
 
     @Override
-    public String name() {
+    public String getKey() {
         return name;
     }
 
     @Override
-    public Object get(final Object container) throws UnsupportedOperationException, NullPointerException {
+    public Object getValue(final Object container) throws UnsupportedOperationException, NullPointerException {
         try {
             return field.get(container);
         } catch (final IllegalAccessException e) {
@@ -32,7 +32,7 @@ public class FieldProperty implements Property {
     }
 
     @Override
-    public void set(final Object container, final Object value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
+    public void setValue(final Object container, final Object value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
         try {
             field.set(container, value);
         } catch (IllegalAccessException e) {

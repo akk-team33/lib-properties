@@ -33,18 +33,18 @@ public class PlainProperty implements Property {
     }
 
     @Override
-    public final String name() {
+    public final String getKey() {
         return name;
     }
 
     @Override
-    public final Object get(final Object container) throws UnsupportedOperationException, NullPointerException {
+    public final Object getValue(final Object container) throws UnsupportedOperationException, NullPointerException {
         //noinspection unchecked
         return getter.apply(container);
     }
 
     @Override
-    public final void set(final Object container, final Object value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
+    public final void setValue(final Object container, final Object value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
         //noinspection unchecked
         setter.accept(container, value);
     }
