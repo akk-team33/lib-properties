@@ -31,12 +31,11 @@ public abstract class PropertyTestBase {
               .forEach(consumer);
     }
 
-    protected abstract Container newContainer(final ContainerType type, final Long value);
+    protected abstract Container newContext(final Long value);
 
     @Test
     public final void consistence() {
-        forSeveralValues(value -> Stream.of(ContainerType.values())
-                                        .forEach(type -> assertEquals(value, newContainer(type, value).getValue())));
+        forSeveralValues(value -> assertEquals(value, newContext(value).getValue()));
     }
 
     @Test
@@ -47,7 +46,7 @@ public abstract class PropertyTestBase {
     @Test
     public final void getValue() {
         forSeveralValues(value -> {
-            final Container sample = newContainer(ContainerType.Familiar, value);
+            final Container sample = newContext(value);
             assertEquals(sample.getValue(), property.getValue(sample));
         });
     }
@@ -66,15 +65,10 @@ public abstract class PropertyTestBase {
     @Test
     public final void setValue() {
         forSeveralValues(value -> {
-            final Container sample = newContainer(ContainerType.Familiar, null);
+            final Container sample = newContext(null);
             property.setValue(sample, value);
             assertEquals(value, sample.getValue());
         });
-    }
-
-    protected enum ContainerType {
-        Familiar,
-        Foreign
     }
 
     private static class Foreign {

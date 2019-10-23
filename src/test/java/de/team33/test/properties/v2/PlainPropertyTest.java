@@ -3,7 +3,6 @@ package de.team33.test.properties.v2;
 import de.team33.libs.properties.v2.PlainProperty;
 import de.team33.libs.properties.v2.Property;
 import de.team33.test.properties.shared.Container;
-import de.team33.test.properties.shared.Immutable;
 import de.team33.test.properties.shared.Mutable;
 import org.junit.Test;
 
@@ -16,13 +15,8 @@ public class PlainPropertyTest extends PropertyTestBase {
     }
 
     @Override
-    protected Container newContainer(final ContainerType type, final Long value) {
-        switch (type) {
-            case Familiar:
-                return new Mutable().setValue(value);
-            default:
-                return new Immutable(value);
-        }
+    protected Container newContext(final Long value) {
+        return new Mutable().setValue(value);
     }
 
     @Test(expected = UnsupportedOperationException.class)
