@@ -48,6 +48,10 @@ public class PlainProperty<C, V> implements Property<C, V> {
 
     @Override
     public final void setValue(final C context, final V value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
-        setter.accept(context, value);
+        try {
+            setter.accept(context, value);
+        } catch (final ClassCastException e) {
+            throw new IllegalContextException(this, context, value, e);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package de.team33.test.properties.v2;
 
 import de.team33.libs.properties.v2.IllegalContextException;
+import de.team33.libs.properties.v2.IllegalValueException;
 import de.team33.libs.properties.v2.Property;
 import de.team33.test.properties.shared.Container;
 import org.junit.Test;
@@ -69,6 +70,27 @@ public abstract class PropertyTestBase {
             property.setValue(sample, value);
             assertEquals(value, sample.getValue());
         });
+    }
+
+    @Test(expected = NullPointerException.class)
+    public final void setValueMissingContext() {
+        final Container sample = null;
+        property.setValue(sample, random.nextLong());
+        fail("expected to fail but was " + sample.getValue());
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public final void setValueByForeignContext() {
+        final Foreign sample = new Foreign(null);
+        property.setValue(sample, random.nextLong());
+        fail("expected to fail but was " + sample.getValue());
+    }
+
+    @Test(expected = IllegalValueException.class)
+    public final void setValueByForeignValue() {
+        final Container sample = newContext(null);
+        property.setValue(sample, random.nextDouble());
+        fail("expected to fail but was " + sample.getValue());
     }
 
     private static class Foreign {

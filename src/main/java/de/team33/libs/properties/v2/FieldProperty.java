@@ -23,7 +23,7 @@ public class FieldProperty<C, V> implements Property<C, V> {
     }
 
     @Override
-    public V getValue(final C context) throws UnsupportedOperationException, NullPointerException {
+    public V getValue(final C context) throws NullPointerException, IllegalContextException {
         try {
             //noinspection unchecked
             return (V) field.get(context);
@@ -33,11 +33,11 @@ public class FieldProperty<C, V> implements Property<C, V> {
     }
 
     @Override
-    public void setValue(final C context, final V value) throws UnsupportedOperationException, NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
+    public void setValue(final C context, final V value) throws NullPointerException, ClassCastException, IllegalArgumentException, IllegalStateException {
         try {
             field.set(context, value);
-        } catch (final IllegalAccessException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+        } catch (final IllegalAccessException | IllegalArgumentException e) {
+            throw new IllegalContextException(this, context, value, e);
         }
     }
 }
