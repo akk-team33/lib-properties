@@ -1,5 +1,6 @@
 package de.team33.test.properties.v2;
 
+import de.team33.libs.properties.v2.IllegalContextException;
 import de.team33.libs.properties.v2.Property;
 import de.team33.test.properties.shared.Container;
 import org.junit.Test;
@@ -9,11 +10,13 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings("unchecked")
 public abstract class PropertyTestBase {
 
-    private final Random random = new Random();
+    protected final Random random = new Random();
+
     private final String expectedPropertyName;
     private final Property property;
 
@@ -50,18 +53,18 @@ public abstract class PropertyTestBase {
     }
 
     @Test(expected = NullPointerException.class)
-    public void getValueByNull() {
-        property.getValue(null);
+    public final void getValueMissingContext() {
+        fail("expected to fail but was " + property.getValue(null));
     }
 
-    @Test(expected = RuntimeException.class) // TODO: IllegalArgumentException.class
-    public void getValueByForeign() {
-        final Container sample = newContainer(ContainerType.Foreign, random.nextLong());
-        assertEquals(sample.getValue(), property.getValue(sample));
+    @Test(expected = IllegalContextException.class)
+    public final void getValueByForeignContext() {
+        final Foreign sample = new Foreign(random.nextLong());
+        fail("expected to fail but was " + property.getValue(sample));
     }
 
     @Test
-    public void setValue() {
+    public final void setValue() {
         forSeveralValues(value -> {
             final Container sample = newContainer(ContainerType.Familiar, null);
             property.setValue(sample, value);
@@ -72,5 +75,18 @@ public abstract class PropertyTestBase {
     protected enum ContainerType {
         Familiar,
         Foreign
+    }
+
+    private static class Foreign {
+
+        private final Long value;
+
+        public Foreign(final Long value) {
+            this.value = value;
+        }
+
+        public Long getValue() {
+            return value;
+        }
     }
 }

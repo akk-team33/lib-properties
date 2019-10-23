@@ -38,8 +38,12 @@ public class PlainProperty<C, V> implements Property<C, V> {
     }
 
     @Override
-    public final V getValue(final C context) throws UnsupportedOperationException, NullPointerException {
-        return getter.apply(context);
+    public final V getValue(final C context) throws UnsupportedOperationException, NullPointerException, IllegalContextException {
+        try {
+            return getter.apply(context);
+        } catch (final ClassCastException e) {
+            throw new IllegalContextException(this, context, e);
+        }
     }
 
     @Override

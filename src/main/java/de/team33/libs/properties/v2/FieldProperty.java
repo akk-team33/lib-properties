@@ -27,8 +27,8 @@ public class FieldProperty<C, V> implements Property<C, V> {
         try {
             //noinspection unchecked
             return (V) field.get(context);
-        } catch (final IllegalAccessException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+        } catch (final IllegalAccessException | IllegalArgumentException e) {
+            throw new IllegalContextException(this, context, e);
         }
     }
 

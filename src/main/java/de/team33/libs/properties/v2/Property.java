@@ -14,23 +14,19 @@ public interface Property<C, V> {
      * Gets the value of this property from a specific context.
      *
      * @throws UnsupportedOperationException If the value of this property can not be retrieved.
-     * @throws NullPointerException          If the given context is {@code null}.
+     * @throws NullPointerException          If a context is required but {@code null} is given.
+     * @throws IllegalContextException       If the given context does not support this property.
      */
-    V getValue(C context) throws UnsupportedOperationException, NullPointerException;
+    V getValue(C context) throws UnsupportedOperationException, NullPointerException, IllegalContextException;
 
     /**
      * Sets this property of a given context to a given value.
      *
      * @throws UnsupportedOperationException If the value of this property can not be set.
-     * @throws NullPointerException          If the given context is {@code null} or if the value is
-     *                                       {@code null} and therefore can not be assigned to this property.
-     * @throws ClassCastException            If the value can not be assigned to this property because of its type.
-     * @throws IllegalArgumentException      If the value can not be assigned to this property for any other reason
-     *                                       that results from the given value.
-     * @throws IllegalStateException         If the value can not be assigned to this property for any other reason
-     *                                       that results from the given context.
+     * @throws NullPointerException          If a context is required but {@code null} is given.
+     * @throws IllegalContextException       If the given context does not support this property.
+     * @throws IllegalValueException         If the value can not be assigned to this property.
      */
     void setValue(C context, V value) throws UnsupportedOperationException, NullPointerException,
-                                             ClassCastException, IllegalArgumentException,
-                                             IllegalStateException;
+                                             IllegalContextException, IllegalValueException;
 }
